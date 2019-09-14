@@ -74,6 +74,7 @@ func addData(c *gin.Context)  {
 	row := db.QueryRow("INSERT INTO customer (name, email, status) values ($1, $2, $3) RETURNING id", t.Name, t.Email, t.Status)
 	if err = row.Scan(&t.ID); err != nil {
 		fmt.Println("can't scan id", err)
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	c.JSON(http.StatusCreated, t)
@@ -86,6 +87,7 @@ func queryData(c *gin.Context)  {
 	stmt, err := db.Prepare("SELECT id, name, email, status FROM customer WHERE id=$1;")
 	if err != nil {
 		fmt.Println("can't prepare query")
+		c.JSON(http.StatusBadRequest, err)
 	}
 	row := stmt.QueryRow(id)
 	err = row.Scan(&t.ID, &t.Name, &t.Email, &t.Status)
